@@ -1,4 +1,5 @@
-import * as dotenv from "dotenv";
+import dotenv from "dotenv";
+import mysql from "mysql";
 import express, { Request, Response, NextFunction } from "express";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
@@ -6,6 +7,21 @@ import session from "express-session";
 import path from "path";
 
 dotenv.config();
+
+const db = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB,
+});
+
+db.connect((err) => {
+  if (err) {
+    throw err;
+  }
+  console.log("MySQL Connected...");
+});
+
 const app = express();
 
 const port = process.env.PORT || 3000;
@@ -28,8 +44,9 @@ app.use(
   })
 );
 
-app.get("/", (req: Request, res: Response, next: NextFunction) => {
-  res.send(`<h1>Your Work Log</h1>`);
+app.get("/", (req: Request, res: Response) => {
+  console.log(req.sessionID);
+  res.send("hello world!");
 });
 
 app.listen(port, () => {
