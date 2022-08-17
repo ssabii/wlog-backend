@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 
-import mysql from "mysql2";
+import sequelizeConnection from "./models";
 import { createClient } from "redis";
 import connectRedis from "connect-redis";
 
@@ -13,19 +13,14 @@ import path from "path";
 
 dotenv.config();
 
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB,
-});
-
-db.connect((err) => {
-  if (err) {
-    throw err;
-  }
-  console.log("MySQL Connected...");
-});
+sequelizeConnection
+  .sync({ force: false })
+  .then(() => {
+    console.log("데이터베이스 연결 성공");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 const RedisStore = connectRedis(session);
 const redisClient = createClient({ legacyMode: true });
