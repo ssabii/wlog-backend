@@ -1,5 +1,7 @@
 import dotenv from "dotenv";
-import { Sequelize, Dialect } from "sequelize";
+import { Dialect } from "sequelize";
+import { Sequelize } from "sequelize-typescript";
+import User from "../models/user";
 
 dotenv.config();
 
@@ -9,9 +11,10 @@ const dbHost = process.env.DB_HOST;
 const dbDriver = process.env.DB_DRIVER as Dialect;
 const dbPassword = process.env.DB_PASSWORD;
 
-const sequelizeConnection = new Sequelize(dbName, dbUser, dbPassword, {
+const connection = new Sequelize(dbName, dbUser, dbPassword, {
   host: dbHost,
   dialect: dbDriver,
+  models: [User],
 });
 
-export default sequelizeConnection;
+export default connection;

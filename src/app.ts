@@ -1,19 +1,20 @@
 import dotenv from "dotenv";
 
-import sequelizeConnection from "./models";
+import connection from "./db/config";
 import { createClient } from "redis";
 import connectRedis from "connect-redis";
 
-import express, { Request, Response, NextFunction } from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import path from "path";
+import User from "./models/user";
 
 dotenv.config();
 
-sequelizeConnection
+connection
   .sync({ force: false })
   .then(() => {
     console.log("데이터베이스 연결 성공");
