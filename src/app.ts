@@ -10,7 +10,9 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import path from "path";
-import User from "./models/user";
+import passport from "./config/passport";
+
+import routes from "./routes";
 
 dotenv.config();
 
@@ -42,7 +44,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(
   session({
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     secret: process.env.COOKIE_SECRET || "some cookie",
     cookie: {
       httpOnly: true,
@@ -54,9 +56,17 @@ app.use(
   })
 );
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Welcome wlog");
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use((req: Request, res: Response, next: Function) => {
+  // 요청이 들어오면 serialize 해서 req에 집어 넣는다.
+  console.log(req.session);
+  console.log(req.user);
+  next();
 });
+
+app.use(routes);
 
 app.listen(port, () => {
   console.info(`Server listening on port ${port}`);

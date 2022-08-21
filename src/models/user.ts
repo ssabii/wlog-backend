@@ -10,12 +10,26 @@ export default class User extends Model {
   @Column({
     type: DataType.STRING,
     allowNull: false,
+    primaryKey: true,
+    unique: true,
   })
-  name!: string;
+  username!: string;
 
   @Column({
-    type: DataType.INTEGER.UNSIGNED,
+    type: DataType.STRING,
     allowNull: false,
   })
-  age!: number;
+  hash!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  salt!: string;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+  })
+  admin!: boolean;
 }
