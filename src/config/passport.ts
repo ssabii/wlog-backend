@@ -1,45 +1,31 @@
-import passport from "passport";
-import {
-  Strategy as LocalStrategy,
-  IStrategyOptions,
-  VerifyFunction,
-} from "passport-local";
+import fs from "fs";
+import path from "path";
 
-import { validatePassword } from "../lib/password";
+import { PassportStatic } from "passport";
+import { ExtractJwt, Strategy, StrategyOptions } from "passport-jwt";
 import User from "../models/user";
 
-const options: IStrategyOptions = {
-  usernameField: "username",
-  passwordField: "password",
+const pathToPublicKey = path.join(__dirname, "..", "..", "id_rsa_pub.pem");
+const PUB_KEY = fs.readFileSync(pathToPublicKey, "utf-8");
+
+const options: StrategyOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: PUB_KEY,
+  algorithms: ["RS256"],
 };
 
-const verifyCallback: VerifyFunction = (username, password, done) => {
-  User.findOne({ where: { username } }).then((user) => {
-    if (!user) {
-      return done(null, false);
-    }
-
-    const isValid = validatePassword(password, user.hash, user.salt);
-
-    if (isValid) return done(null, user);
-    else return done(null, false);
-  });
-};
-
-const strategy = new LocalStrategy(options, verifyCallback);
-
-passport.use(strategy);
-
-passport.serializeUser((user: any, done) => {
-  done(null, user.username);
-});
-
-passport.deserializeUser((username: string, done) => {
-  User.findOne({ where: { username } })
+const strategy = new Strategy(options, (payload, done) => {
+  User.findOne({ where: { username: payload.sub } })
     .then((user) => {
-      done(null, user);
+      if (user) {
+        return done(null, user);
+      } else {
+        return done(null, false);
+      }
     })
-    .catch((err) => done(err));
+    .catch((err) => done(err, null));
 });
 
-export default passport;
+export default (passport: PassportStatic) => {
+  passport.use(strategy);
+};

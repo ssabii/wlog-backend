@@ -1,20 +1,47 @@
-import express, { Request, Response, NextFunction } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import passport from "passport";
 
+import { issueJwt } from "../lib/jwt";
+import { generatePassword, validatePassword } from "../lib/password";
 import User from "../models/user";
-import { generatePassword } from "../lib/password";
-import { isAdmin, isAuth } from "./authMiddleware";
 
 const router = express.Router();
 
-router.post(
-  "/login",
-  passport.authenticate("local", {
-    failureRedirect: "/login-failure",
-    successRedirect: "/login-success",
-    failureFlash: true,
-  })
+router.get(
+  "/protected",
+  passport.authenticate("jwt", { session: false }),
+  (req, res, next) => {
+    res.status(200).json({ success: true, message: "you are authorized" });
+  }
 );
+
+router.post("/login", (req: Request, res: Response, next: NextFunction) => {
+  User.findOne({ where: { username: req.body.username } })
+    .then((user) => {
+      if (!user) {
+        res
+          .status(401)
+          .json({ success: false, message: "could not find user" });
+      }
+      const isValid = validatePassword(
+        req.body.username,
+        user!.hash,
+        user!.salt
+      );
+
+      if (isValid) {
+        const { token, expires } = issueJwt(user!);
+        res.status(200).json({ success: true, user: user, token, expires });
+      } else {
+        res
+          .status(401)
+          .json({ success: false, message: "you entered the wrong password" });
+      }
+    })
+    .catch((err) => {
+      next(err);
+    });
+});
 
 router.post("/register", (req: Request, res: Response, next: NextFunction) => {
   const { salt, hash } = generatePassword(req.body.password);
@@ -23,11 +50,12 @@ router.post("/register", (req: Request, res: Response, next: NextFunction) => {
     username: req.body.username,
     salt,
     hash,
-    admin: true,
   });
-  newUser.save().then((user) => console.log(user));
 
-  res.redirect("/login");
+  newUser.save().then((user) => {
+    const { token, expires } = issueJwt(user);
+    res.json({ success: true, user: user, token, expires });
+  });
 });
 
 router.get("/", (req, res, next) => {
@@ -62,14 +90,6 @@ router.get("/login-success", (req, res, next) => {
 
 router.get("/login-failure", (req, res, next) => {
   res.send("You entered the wrong password.");
-});
-
-router.get("/protected-route", isAuth, (req, res, next) => {
-  res.send("You made it to the route.");
-});
-
-router.get("/admin-route", isAdmin, (req, res, next) => {
-  res.send("You made it to the admin route.");
 });
 
 router.get("/logout", (req: Request, res: Response, next: NextFunction) => {

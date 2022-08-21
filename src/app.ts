@@ -1,20 +1,23 @@
 import dotenv from "dotenv";
 
-import connection from "./db/config";
-import { createClient } from "redis";
 import connectRedis from "connect-redis";
+import { createClient } from "redis";
+import connection from "./db/config";
 
-import express, { Request, Response } from "express";
-import cors from "cors";
-import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import cors from "cors";
+import express from "express";
 import session from "express-session";
+import morgan from "morgan";
+import passport from "passport";
 import path from "path";
-import passport from "./config/passport";
+import passportConfig from "./config/passport";
 
 import routes from "./routes";
 
 dotenv.config();
+
+passportConfig(passport);
 
 connection
   .sync({ force: false })
@@ -58,13 +61,6 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
-
-app.use((req: Request, res: Response, next: Function) => {
-  // 요청이 들어오면 serialize 해서 req에 집어 넣는다.
-  console.log(req.session);
-  console.log(req.user);
-  next();
-});
 
 app.use(routes);
 
