@@ -1,7 +1,5 @@
 import dotenv from "dotenv";
 
-import connectRedis from "connect-redis";
-import { createClient } from "redis";
 import { connectDB } from "./config/database";
 
 import cookieParser from "cookie-parser";
@@ -14,19 +12,13 @@ import path from "path";
 import passportConfig from "./config/passport";
 
 import routes from "./routes";
+import { connectRedis } from "./config/redis";
 
 dotenv.config();
 
-passportConfig(passport);
-
 connectDB();
 
-const RedisStore = connectRedis(session);
-const redisClient = createClient({ legacyMode: true });
-redisClient.on("error", (err) => {
-  console.log(err);
-});
-redisClient.connect();
+connectRedis();
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -37,21 +29,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 app.use(cookieParser(process.env.COOKIE_SECRET));
-app.use(
-  session({
-    resave: false,
-    saveUninitialized: false,
-    secret: process.env.COOKIE_SECRET || "some cookie",
-    cookie: {
-      httpOnly: true,
-      secure: false,
-      maxAge: 1000 * 60 * 60 * 24, // 1 day
-    },
-    name: "session-cookie",
-    store: new RedisStore({ client: redisClient }),
-  })
-);
 
+passportConfig(passport);
 app.use(passport.initialize());
 app.use(passport.session());
 
