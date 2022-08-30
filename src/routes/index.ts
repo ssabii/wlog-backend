@@ -3,17 +3,15 @@ import passport from "passport";
 
 import { issueJwt } from "../lib/jwt";
 import { generatePassword, validatePassword } from "../lib/password";
-import User from "../models/user";
+import User from "../models/User";
+import authMiddleware, { JwtRequest } from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
-router.get(
-  "/protected",
-  passport.authenticate("jwt", { session: false }),
-  (req, res, next) => {
-    res.status(200).json({ success: true, message: "you are authorized" });
-  }
-);
+router.get("/protected", authMiddleware, (req: JwtRequest, res, next) => {
+  console.log(req.jwt);
+  res.status(200).json({ success: true, message: "you are authorized" });
+});
 
 router.post("/login", (req: Request, res: Response, next: NextFunction) => {
   User.findOne({ where: { username: req.body.username } })
@@ -50,6 +48,7 @@ router.post("/register", (req: Request, res: Response, next: NextFunction) => {
     username: req.body.username,
     salt,
     hash,
+    displayName: req.body.username,
   });
 
   newUser.save().then((user) => {
@@ -59,6 +58,7 @@ router.post("/register", (req: Request, res: Response, next: NextFunction) => {
 });
 
 router.get("/", (req, res, next) => {
+  console.log(req.sessionID, req.session);
   res.send('<h1>Home</h1><p>Please <a href="/register">register</a></p>');
 });
 
@@ -102,11 +102,9 @@ router.get("/logout", (req: Request, res: Response, next: NextFunction) => {
 });
 
 // for debugging
-router.get("/debug", (req: Request | any, res: Response) => {
-  res.json({
-    "req.session": req.session,
-    "req.user": req.user,
-  });
+router.get("/debug", async (req: Request | any, res: Response) => {
+  const user = await User.findOne({ where: { username: "ssabi" } });
+  console.log(new Date(user?.createdAt).toLocaleString("ko-KR"));
 });
 
 export default router;
