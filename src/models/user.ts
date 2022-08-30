@@ -1,35 +1,83 @@
-import { Column, DataType, Model, Table } from "sequelize-typescript";
+import { DataTypes, Optional } from "sequelize";
+import {
+  AllowNull,
+  Column,
+  DataType,
+  Default,
+  HasMany,
+  Model,
+  PrimaryKey,
+  Table,
+  Unique,
+} from "sequelize-typescript";
+import UserSetting from "./UserSetting";
+import Work from "./Work";
 
 interface UserAttributes {
+  id: string;
   username: string;
   hash: string;
   salt: string;
+  displayName: string;
+  profileUrl: string;
 }
 
+interface UserCreationAttributes
+  extends Optional<UserAttributes, "id" | "profileUrl"> {}
+
 @Table({
-  timestamps: false,
   tableName: "users",
-  modelName: "User",
+  modelName: "user",
   charset: "utf8",
+  timestamps: true,
+  underscored: true,
 })
-export default class User extends Model<UserAttributes, UserAttributes> {
+export default class User extends Model<
+  UserAttributes,
+  UserCreationAttributes
+> {
+  @PrimaryKey
+  @AllowNull(false)
+  @Default(DataTypes.UUIDV4)
+  @Column({
+    type: DataType.UUID,
+  })
+  id!: string;
+
+  @Unique
+  @AllowNull(false)
   @Column({
     type: DataType.STRING,
-    allowNull: false,
-    primaryKey: true,
-    unique: true,
   })
   username!: string;
 
+  @AllowNull(false)
   @Column({
     type: DataType.STRING,
-    allowNull: false,
   })
   hash!: string;
 
+  @AllowNull(false)
   @Column({
     type: DataType.STRING,
-    allowNull: false,
   })
   salt!: string;
+
+  @AllowNull(false)
+  @Column({
+    type: DataType.STRING,
+  })
+  displayName!: string;
+
+  @AllowNull
+  @Column({
+    type: DataType.STRING,
+  })
+  profileUrl!: string;
+
+  @HasMany(() => Work, { foreignKey: "username", sourceKey: "username" })
+  works?: Work[];
+
+  @HasMany(() => UserSetting, { foreignKey: "username", sourceKey: "username" })
+  userSettings?: UserSetting[];
 }
