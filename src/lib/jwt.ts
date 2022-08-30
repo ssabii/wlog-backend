@@ -2,7 +2,7 @@ import fs from "fs";
 import jsonwebtoken, { JwtPayload } from "jsonwebtoken";
 import path from "path";
 
-import User from "../models/user";
+import User from "../models/User";
 
 const pathToPrivateKey = path.join(__dirname, "..", "..", "id_rsa_priv.pem");
 const PRIV_KEY = fs.readFileSync(pathToPrivateKey, "utf-8");
