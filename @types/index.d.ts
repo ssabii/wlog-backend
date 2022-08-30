@@ -1,5 +1,8 @@
-import UserModel from "../src/models/user";
+import { JwtPayload } from "jsonwebtoken";
+import UserModel from "../src/models/User";
 
-declare module Express {
-  export interface User extends UserModel {}
+declare global {
+  namespace Express {
+    interface User extends UserModel {}
+  }
 }
