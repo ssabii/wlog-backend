@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
+import path from "path";
 import { Dialect } from "sequelize";
 import { Sequelize } from "sequelize-typescript";
-import User from "../models/user";
 
 dotenv.config();
 
@@ -14,7 +14,16 @@ const dbPassword = process.env.DB_PASSWORD;
 const connection = new Sequelize(dbName, dbUser, dbPassword, {
   host: dbHost,
   dialect: dbDriver,
-  models: [User],
+  models: [path.join(__dirname, "..", "models")],
 });
 
-export default connection;
+export const connectDB = () => {
+  connection
+    .sync({ force: true })
+    .then(() => {
+      console.log("database connected");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};

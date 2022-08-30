@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 
 import connectRedis from "connect-redis";
 import { createClient } from "redis";
-import connection from "./db/config";
+import { connectDB } from "./config/database";
 
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -19,14 +19,7 @@ dotenv.config();
 
 passportConfig(passport);
 
-connection
-  .sync({ force: false })
-  .then(() => {
-    console.log("데이터베이스 연결 성공");
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+connectDB();
 
 const RedisStore = connectRedis(session);
 const redisClient = createClient({ legacyMode: true });
