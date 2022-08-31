@@ -1,16 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import fs from "fs";
 import path from "path";
-import jsonwebtoken, { JwtPayload } from "jsonwebtoken";
-
-const pathToPrivateKey = path.join(__dirname, "..", "..", "id_rsa_priv.pem");
-const PRIV_KEY = fs.readFileSync(pathToPrivateKey, "utf-8");
-const pathToPublicKey = path.join(__dirname, "..", "..", "id_rsa_pub.pem");
-const PUB_KEY = fs.readFileSync(pathToPublicKey, "utf-8");
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 export interface JwtRequest extends Request {
   jwt?: string | JwtPayload;
 }
+
+const publicKey = process.env.JWT_PUBLIC_KEY!;
 
 const authMiddleware = (req: JwtRequest, res: Response, next: NextFunction) => {
   const tokenParts = req.headers.authorization!.split(" ");
@@ -19,7 +16,7 @@ const authMiddleware = (req: JwtRequest, res: Response, next: NextFunction) => {
     tokenParts[1].match(/\S+\.\S+\.\S+/) !== null
   ) {
     try {
-      const verification = jsonwebtoken.verify(tokenParts[1], PUB_KEY, {
+      const verification = jwt.verify(tokenParts[1], publicKey, {
         algorithms: ["RS256"],
       });
       req.jwt = verification;
