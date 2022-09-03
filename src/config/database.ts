@@ -19,7 +19,7 @@ const connection = new Sequelize(dbName, dbUser, dbPassword, {
 
 export const connectDB = () => {
   connection
-    .sync({ force: true })
+    .sync({ force: false, logging: false })
     .then(() => {
       console.log("database connected");
     })
