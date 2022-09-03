@@ -1,6 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import fs from "fs";
-import path from "path";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
 export interface JwtRequest extends Request {

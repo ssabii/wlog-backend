@@ -1,5 +1,4 @@
 import express, { NextFunction, Request, Response } from "express";
-import passport from "passport";
 
 import { issueJwt } from "../lib/jwt";
 import { generatePassword, validatePassword } from "../lib/password";
