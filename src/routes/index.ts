@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from "express";
+import express, { Request, Response } from "express";
 import { Send, Query } from "express-serve-static-core";
 
 import authRouter from "./auth";

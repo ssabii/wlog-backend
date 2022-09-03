@@ -1,55 +1,90 @@
 import express, { NextFunction, Request, Response } from "express";
 
-import { issueJwt } from "../lib/jwt";
+import { refresh, sign } from "../lib/jwt";
 import { generatePassword, validatePassword } from "../lib/password";
 import User from "../models/User";
 import authMiddleware, { JwtRequest } from "../middlewares/authMiddleware";
 import { TypedRequestBody } from ".";
+import { redisClient } from "../config/redis";
 
 const router = express.Router();
 
 router.get("/protected", authMiddleware, (req: JwtRequest, res, next) => {
   console.log(req.jwt);
-  res.status(200).json({ success: true, message: "you are authorized" });
+  res.status(200).json({ message: "you are authorized" });
 });
 
-router.post("/login", (req: Request, res: Response, next: NextFunction) => {
-  User.findOne({ where: { username: req.body.username } })
-    .then((user) => {
-      if (!user) {
-        res.status(401).json({ message: "could not found user" });
-        return;
-      }
-      console.log("is run this line?");
-      const isValid = validatePassword(
-        req.body.username,
-        user!.hash,
-        user!.salt
-      );
-
-      if (isValid) {
-        const { token, expires } = issueJwt(user!);
-        res.status(200).json({ success: true, user: user, token, expires });
-      } else {
-        res
-          .status(401)
-          .json({ success: false, message: "you entered the wrong password" });
-      }
-    })
-    .catch((err) => {
-      next(err);
-    });
-});
-
-interface RegisterRequestBody {
+interface LoginRequestBody {
   username: string;
   password: string;
 }
 
 router.post(
+  "/login",
+  (
+    req: TypedRequestBody<LoginRequestBody>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { username, password } = req.body;
+
+    if (!username) {
+      res.status(400).json({ message: "username is required" });
+      return;
+    }
+
+    if (!password) {
+      res.status(400).json({ message: "password is required" });
+      return;
+    }
+
+    User.findOne({ where: { username } })
+      .then((user) => {
+        if (!user) {
+          res.status(401).json({ message: "could not found user" });
+          return;
+        }
+
+        const { id, hash, salt } = user;
+        const isValid = validatePassword(password, hash, salt);
+
+        if (isValid) {
+          const accessToken = sign(user);
+          const refreshToken = refresh();
+
+          redisClient.set(id, refreshToken);
+
+          res.status(200).json({
+            message: "success login",
+            data: {
+              token: {
+                access_token: accessToken,
+                refresh_token: refreshToken,
+              },
+            },
+          });
+        } else {
+          res.status(401).json({
+            message: "invalid password",
+          });
+        }
+      })
+      .catch((err) => {
+        next(err);
+      });
+  }
+);
+
+interface RegisterRequestBody {
+  username: string;
+  password: string;
+  displayName?: string;
+}
+
+router.post(
   "/register",
   async (req: TypedRequestBody<RegisterRequestBody>, res: Response) => {
-    const { username, password } = req.body;
+    const { username, password, displayName } = req.body;
     if (!username) {
       res.status(400).json({ message: "username is required" });
       return;
@@ -70,10 +105,10 @@ router.post(
     const { salt, hash } = generatePassword(password);
 
     const newUser = User.build({
-      username: req.body.username,
+      username,
       salt,
       hash,
-      displayName: req.body.username,
+      displayName: displayName ?? username,
     });
 
     newUser.save().then(() => {
@@ -89,7 +124,7 @@ router.get("/", (req, res, next) => {
 
 router.get("/login", (req, res, next) => {
   const form =
-    '<h1>Login Page</h1><form method="POST" action="/login">\
+    '<h1>Login Page</h1><form method="POST" action="/api/v1/login">\
   Enter Username:<br><input type="text" name="username">\
   <br>Enter Password:<br><input type="password" name="password">\
   <br><br><input type="submit" value="Submit"></form>';

@@ -1,31 +1,27 @@
 import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { verify } from "../lib/jwt";
 
 export interface JwtRequest extends Request {
   jwt?: string | JwtPayload;
 }
 
-const publicKey = process.env.JWT_PUBLIC_KEY!;
-
 const authMiddleware = (req: JwtRequest, res: Response, next: NextFunction) => {
   const tokenParts = req.headers.authorization!.split(" ");
+  console.log(req.headers.authorization!);
   if (
     tokenParts[0] === "Bearer" &&
     tokenParts[1].match(/\S+\.\S+\.\S+/) !== null
   ) {
     try {
-      const verification = jwt.verify(tokenParts[1], publicKey, {
-        algorithms: ["RS256"],
-      });
+      const verification = verify(tokenParts[1]);
       req.jwt = verification;
       next();
     } catch (err) {
-      res
-        .status(401)
-        .json({ success: false, message: "You are not authorized" });
+      res.status(401).json({ message: "You are not authorized" });
     }
   } else {
-    res.status(401).json({ success: false, message: "You are not authorized" });
+    res.status(401).json({ message: "You are not authorized" });
   }
 };
 
