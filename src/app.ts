@@ -1,17 +1,15 @@
 import dotenv from "dotenv";
 
 import { connectDB } from "./config/database";
+import { connectRedis } from "./config/redis";
 
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import morgan from "morgan";
-import passport from "passport";
 import path from "path";
-import passportConfig from "./config/passport";
 
-import routes from "./routes";
-import { connectRedis } from "./config/redis";
+import authRouter from "./routes";
 
 dotenv.config();
 
@@ -29,7 +27,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
-app.use(routes);
+app.use("/api/v1", authRouter);
 
 app.listen(port, () => {
   console.info(`Server listening on port ${port}`);
