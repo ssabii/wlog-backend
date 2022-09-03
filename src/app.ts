@@ -5,7 +5,6 @@ import { connectDB } from "./config/database";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
-import session from "express-session";
 import morgan from "morgan";
 import passport from "passport";
 import path from "path";
@@ -29,10 +28,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 app.use(cookieParser(process.env.COOKIE_SECRET));
-
-passportConfig(passport);
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.use(routes);
 
