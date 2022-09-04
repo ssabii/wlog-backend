@@ -3,14 +3,13 @@ import express, { NextFunction, Request, Response } from "express";
 import { refresh, sign } from "../lib/jwt";
 import { generatePassword, validatePassword } from "../lib/password";
 import User from "../models/User";
-import authMiddleware, { JwtRequest } from "../middlewares/authMiddleware";
+import authJWT, { JwtRequest } from "../middlewares/authMiddleware";
 import { TypedRequestBody } from ".";
 import { redisClient } from "../config/redis";
 
 const router = express.Router();
 
-router.get("/protected", authMiddleware, (req: JwtRequest, res, next) => {
-  console.log(req.jwt);
+router.get("/protected", authJWT, (req: JwtRequest, res, next) => {
   res.status(200).json({ message: "you are authorized" });
 });
 

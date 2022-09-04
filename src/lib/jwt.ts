@@ -7,10 +7,18 @@ import User from "../models/User";
 const privateKey = process.env.JWT_PRIVATE_KEY as string;
 const publicKey = process.env.JWT_PUBLIC_KEY as string;
 
+export interface CustomJwtPayload extends JwtPayload {
+  id: string;
+  username: string;
+  display_name: string;
+}
+
 export const sign = (user: User) => {
   const expiresIn = "1h";
-  const payload: JwtPayload = {
-    sub: user.id,
+  const payload: CustomJwtPayload = {
+    id: user.id,
+    username: user.username,
+    display_name: user.displayName,
     iat: Date.now(),
   };
 
@@ -19,7 +27,7 @@ export const sign = (user: User) => {
     expiresIn,
   });
 
-  return "Bearer" + signedToken;
+  return "Bearer " + signedToken;
 };
 
 export const verify = (token: string) => {
@@ -35,7 +43,7 @@ export const refresh = () => {
     expiresIn,
   });
 
-  return "Bearer" + signedToken;
+  return "Bearer " + signedToken;
 };
 
 export const verifyRefresh = async (token: string, id: string) => {
