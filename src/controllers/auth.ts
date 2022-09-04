@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { promisify } from "util";
 
 import { TypedRequestBody } from ".";
 import { redisClient } from "config/redis";
@@ -44,6 +45,7 @@ export const postLogin = (
         const refreshToken = refresh();
 
         redisClient.set(id, refreshToken);
+        redisClient.expire(id, 60 * 60 * 24 * 7);
 
         res.status(200).json({
           message: "success login",
@@ -130,10 +132,11 @@ export const getRegister = (req: Request, res: Response) => {
 export const getLogout = async (req: JwtRequest, res: Response) => {
   try {
     const { id } = req.jwt as CustomJwtPayload;
-    const refreshToken = await redisClient.v4.exists(id);
+    const existsAsync = promisify(redisClient.exists).bind(redisClient);
+    const refreshToken = await existsAsync(id);
 
     if (refreshToken) {
-      await redisClient.v4.del(id);
+      await redisClient.del(id);
       res.status(200).json({ message: "success logout" });
     } else {
       res.status(500).json({ message: "failed to logout" });
