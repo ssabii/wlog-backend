@@ -2,7 +2,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { promisify } from "util";
 import { redisClient } from "../config/redis";
 
-import User from "../models/User";
+import User from "models/User";
 
 const privateKey = process.env.JWT_PRIVATE_KEY as string;
 const publicKey = process.env.JWT_PUBLIC_KEY as string;
