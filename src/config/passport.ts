@@ -3,7 +3,7 @@ import path from "path";
 
 import { PassportStatic } from "passport";
 import { ExtractJwt, Strategy, StrategyOptions } from "passport-jwt";
-import User from "../models/User";
+import User from "models/User";
 
 const pathToPublicKey = path.join(__dirname, "..", "..", "id_rsa_pub.pem");
 const PUB_KEY = fs.readFileSync(pathToPublicKey, "utf-8");
