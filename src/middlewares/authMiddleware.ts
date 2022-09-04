@@ -6,7 +6,7 @@ export interface JwtRequest extends Request {
   jwt?: string | JwtPayload;
 }
 
-const authJWT = (req: JwtRequest, res: Response, next: NextFunction) => {
+const authJwt = (req: JwtRequest, res: Response, next: NextFunction) => {
   const tokenParts = req.headers.authorization!.split(" ");
 
   if (
@@ -25,4 +25,4 @@ const authJWT = (req: JwtRequest, res: Response, next: NextFunction) => {
   }
 };
 
-export default authJWT;
+export default authJwt;
