@@ -1,13 +1,18 @@
 import { NextFunction, Request, Response } from "express";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import { CustomJwtPayload, verify } from "../lib/jwt";
+import { CustomJwtPayload, verify } from "lib/jwt";
 
 export interface JwtRequest extends Request {
-  jwt?: string | JwtPayload;
+  jwt?: string | CustomJwtPayload;
 }
 
 const authJwt = (req: JwtRequest, res: Response, next: NextFunction) => {
-  const tokenParts = req.headers.authorization!.split(" ");
+  const { authorization } = req.headers;
+  if (!authorization) {
+    res.status(401).json({ message: "You are not authorized" });
+    return;
+  }
+
+  const tokenParts = authorization.split(" ");
 
   if (
     tokenParts[0] === "Bearer" &&

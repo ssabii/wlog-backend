@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 
 import { TypedRequestBody } from ".";
-import { redisClient } from "../config/redis";
-import { refresh, sign } from "../lib/jwt";
-import { generatePassword, validatePassword } from "../lib/password";
-import User from "../models/User";
+import { redisClient } from "config/redis";
+import { CustomJwtPayload, refresh, sign } from "lib/jwt";
+import { generatePassword, validatePassword } from "lib/password";
+import { JwtRequest } from "middlewares/authMiddleware";
+import User from "models/User";
 
 interface LoginRequestBody {
   username: string;
@@ -126,9 +127,20 @@ export const getRegister = (req: Request, res: Response) => {
   res.send(form);
 };
 
-export const getLogout = (req: Request, res: Response) => {
-  req.logout(() => {});
-  // TODO: redisClient 삭제
+export const getLogout = async (req: JwtRequest, res: Response) => {
+  try {
+    const { id } = req.jwt as CustomJwtPayload;
+    const refreshToken = await redisClient.v4.exists(id);
+
+    if (refreshToken) {
+      await redisClient.v4.del(id);
+      res.status(200).json({ message: "success logout" });
+    } else {
+      res.status(500).json({ message: "failed to logout" });
+    }
+  } catch (e) {
+    res.status(500).json({ message: "failed to logout" });
+  }
 };
 
 export const getProtected = (req: Request, res: Response) => {

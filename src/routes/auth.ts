@@ -17,7 +17,7 @@ router.post("/register", postRegister);
 
 router.get("/login", getLogin);
 router.get("/register", getRegister);
-router.get("/logout", getLogout);
+router.get("/logout", authJwt, getLogout);
 router.get("/protected", authJwt, getProtected);
 
 export default router;
