@@ -5,7 +5,7 @@ import { TypedRequestBody } from ".";
 import { redisClient } from "config/redis";
 import { CustomJwtPayload, refresh, sign } from "lib/jwt";
 import { generatePassword, validatePassword } from "lib/password";
-import { JwtRequest } from "middlewares/authMiddleware";
+import { JwtRequest } from "middlewares/authJwt";
 import User from "models/User";
 
 interface LoginRequestBody {
@@ -131,7 +131,7 @@ export const getRegister = (req: Request, res: Response) => {
 
 export const getLogout = async (req: JwtRequest, res: Response) => {
   try {
-    const { id } = req.jwt as CustomJwtPayload;
+    const { id } = req.jwt!;
     const existsAsync = promisify(redisClient.exists).bind(redisClient);
     const refreshToken = await existsAsync(id);
 

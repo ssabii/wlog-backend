@@ -21,7 +21,6 @@ const authJwt = (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
       const verification = <CustomJwtPayload>verify(tokenParts[1]);
       req.jwt = verification;
-      console.log("authJwt");
       next();
     } catch (err) {
       res.status(401).json({ message: "You are not authorized" });

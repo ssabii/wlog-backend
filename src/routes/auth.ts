@@ -8,7 +8,7 @@ import {
   postLogin,
   postRegister,
 } from "../controllers/auth";
-import authJwt from "../middlewares/authMiddleware";
+import authJwt from "../middlewares/authJwt";
 
 const router = express.Router();
 
