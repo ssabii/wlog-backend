@@ -10,8 +10,26 @@ import {
 import { Optional } from "sequelize/types";
 import User from "./User";
 
+export enum WorkType {
+  // 식사 관련
+  Breakfast = "breakfast",
+  Lunch = "lunch",
+  Dinner = "dinner",
+
+  // 근무 관련
+  Work = "work",
+  Overtime = "overtime",
+  BusinessTrip = "business trip",
+  Outside = "outside",
+
+  // 기타
+  Vacation = "vacation",
+  Rest = "rest",
+}
+
 interface WorkAttributes {
-  type: string;
+  username: string;
+  type: WorkType;
   startDate: Date;
   endDate: Date;
   memo: string;
@@ -40,7 +58,7 @@ export default class Work extends Model<
   @Column({
     type: DataType.STRING,
   })
-  type!: string;
+  type!: WorkType;
 
   @AllowNull
   @Column({
