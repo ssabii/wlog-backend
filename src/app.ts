@@ -9,7 +9,7 @@ import express from "express";
 import morgan from "morgan";
 import path from "path";
 
-import authRouter from "./routes";
+import router from "./routes";
 
 dotenv.config();
 
@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
-app.use("/api/v1", authRouter);
+app.use("/api/v1", router);
 
 app.listen(port, () => {
   console.info(`Server listening on port ${port}`);
