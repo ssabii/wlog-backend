@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { CustomJwtPayload, verify } from "lib/jwt";
 
 export interface JwtRequest extends Request {
-  jwt?: string | CustomJwtPayload;
+  jwt?: CustomJwtPayload;
 }
 
 const authJwt = (req: JwtRequest, res: Response, next: NextFunction) => {
@@ -21,6 +21,7 @@ const authJwt = (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
       const verification = <CustomJwtPayload>verify(tokenParts[1]);
       req.jwt = verification;
+      console.log("authJwt");
       next();
     } catch (err) {
       res.status(401).json({ message: "You are not authorized" });
