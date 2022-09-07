@@ -45,7 +45,7 @@ export const postLogin = (
         const refreshToken = refresh();
 
         redisClient.set(id, refreshToken);
-        redisClient.expire(id, 60 * 60 * 24 * 7);
+        redisClient.expire(id, 60 * 60 * 24);
 
         res.status(200).json({
           message: "success login",
