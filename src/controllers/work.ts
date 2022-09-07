@@ -33,8 +33,8 @@ export const createWork = (
 ) => {
   const { username } = req.jwt!;
   const { type, start_date, end_date, memo } = req.body;
-  console.log(type);
-  if (type && (start_date || end_date)) {
+
+  if (!type || !(start_date || end_date)) {
     return res
       .status(400)
       .json({ message: "type or start_date or end_date is required" });
@@ -43,7 +43,8 @@ export const createWork = (
   const newWork = Work.build({
     username,
     type,
-    startDate: new Date(),
+    startDate: start_date ?? undefined,
+    endDate: end_date ?? undefined,
     memo: memo ?? undefined,
   });
 
