@@ -1,10 +1,11 @@
 import {
   AllowNull,
-  BelongsTo,
+  AutoIncrement,
   Column,
   DataType,
   ForeignKey,
   Model,
+  PrimaryKey,
   Table,
 } from "sequelize-typescript";
 import { Optional } from "sequelize/types";
@@ -28,6 +29,7 @@ export enum WorkType {
 }
 
 interface WorkAttributes {
+  id: number;
   username: string;
   type: WorkType;
   startDate: Date;
@@ -36,7 +38,7 @@ interface WorkAttributes {
 }
 
 interface WorkCreationAttributes
-  extends Optional<WorkAttributes, "startDate" | "endDate" | "memo"> {}
+  extends Optional<WorkAttributes, "id" | "startDate" | "endDate" | "memo"> {}
 
 @Table({
   tableName: "works",
@@ -49,6 +51,13 @@ export default class Work extends Model<
   WorkAttributes,
   WorkCreationAttributes
 > {
+  @PrimaryKey
+  @AutoIncrement
+  @Column({
+    type: DataType.INTEGER.UNSIGNED,
+  })
+  id!: number;
+
   @ForeignKey(() => User)
   @Column({
     type: DataType.STRING,

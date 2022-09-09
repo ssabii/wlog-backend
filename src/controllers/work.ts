@@ -1,26 +1,11 @@
 import { Response } from "express";
-import Work from "models/Work";
+import { Query } from "express-serve-static-core";
+import { JwtRequest } from "middlewares/authJwt";
+import Work, { WorkType } from "models/Work";
 
-import { TypedRequestBody } from ".";
+import { TypedRequest, TypedRequestBody, TypedRequestQuery } from ".";
 
-enum WorkType {
-  // 식사 관련
-  Breakfast = "breakfast",
-  Lunch = "lunch",
-  Dinner = "dinner",
-
-  // 근무 관련
-  Work = "work",
-  Overtime = "overtime",
-  BusinessTrip = "business trip",
-  Outside = "outside",
-
-  // 기타
-  Vacation = "vacation",
-  Rest = "rest",
-}
-
-interface WorkRequestBody {
+interface CreateWorkRequestBody {
   type: WorkType;
   start_date?: Date;
   end_date?: Date;
@@ -28,7 +13,7 @@ interface WorkRequestBody {
 }
 
 export const createWork = (
-  req: TypedRequestBody<WorkRequestBody>,
+  req: TypedRequestBody<CreateWorkRequestBody>,
   res: Response
 ) => {
   const { username } = req.jwt!;
@@ -48,13 +33,61 @@ export const createWork = (
     memo: memo ?? undefined,
   });
 
+  // TODO: Work Type은 하루에 하나만 존재해야한다.
+  // TODO: Breakfast, Lunch, Dinner Type은 하루에 하나만 존재해야 한다.
+  // TODO: Vacation Type은 하루에 하나만 존재해야 한다.
+
   newWork.save().then(() => {
     res.status(200).json({ message: "success create work" });
   });
 };
 
-// export const getWork =
+export const getWork = (req: JwtRequest, res: Response) => {
+  const { username } = req.jwt!;
 
-// export const putWork =
+  Work.findAll({ where: { username } }).then((works) => {
+    res.status(200).json({ message: "success get work", data: { works } });
+  });
+};
+
+interface PutWorkRequestQuery extends Query {
+  id: string;
+}
+
+interface UpdateWorkRequestBody {
+  start_date?: Date;
+  end_date?: Date;
+  memo?: string;
+}
+
+export const updateWork = async (
+  req: TypedRequest<PutWorkRequestQuery, UpdateWorkRequestBody>,
+  res: Response
+) => {
+  const { username } = req.jwt!;
+  const { id } = req.query;
+  const { start_date, end_date, memo } = req.body;
+
+  const work = await Work.findOne({ where: { id } });
+
+  if (work) {
+    if (work.username !== username) {
+      return res.status(401).json({ message: "not authorized" });
+    }
+
+    await work
+      .update({
+        startDate: start_date ?? work.startDate,
+        endDate: end_date ?? work.endDate,
+        memo: memo ?? work.memo,
+      })
+      .then(() => res.status(200).json({ message: "success update work" }))
+      .catch(() => {
+        res.status(500).json({ message: "fail update work" });
+      });
+  } else {
+    return res.status(404).json({ message: "not found work" });
+  }
+};
 
 // export const deleteWork =
