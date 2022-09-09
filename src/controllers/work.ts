@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 
 import Work, { WorkType } from "models/Work";
 import { APIResponse, BaseParams, Empty, JwtRequest } from ".";
@@ -16,6 +16,8 @@ export const createWork = (
 ) => {
   const { username } = req.jwt!;
   const { type, start_date, end_date, memo } = req.body;
+
+  // TODO: 시간 유효성 검사
 
   if (!type || !(start_date || end_date)) {
     return res
@@ -54,6 +56,8 @@ export const updateWork = async (
 
   const work = await Work.findOne({ where: { id } });
 
+  // TODO: 시간 유효성 검사
+
   if (work) {
     if (work.username !== username) {
       return res.status(401).json({ message: "not authorized" });
@@ -74,4 +78,27 @@ export const updateWork = async (
   }
 };
 
-// export const deleteWork =
+export const deleteWork = async (
+  req: JwtRequest<BaseParams>,
+  res: Response
+) => {
+  const { username } = req.jwt!;
+  const { id } = req.params;
+
+  const work = await Work.findOne({ where: { id } });
+
+  if (work) {
+    if (work.username !== username) {
+      return res.status(401).json({ message: "not authorized" });
+    }
+
+    await work
+      .destroy()
+      .then(() => res.status(200).json({ message: "success delete work" }))
+      .catch(() => {
+        res.status(500).json({ message: "fail delete work" });
+      });
+  } else {
+    return res.status(404).json({ message: "not found work" });
+  }
+};
