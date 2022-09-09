@@ -1,11 +1,9 @@
-import { Response } from "express";
-import { Query } from "express-serve-static-core";
-import { JwtRequest } from "middlewares/authJwt";
+import { Request, Response } from "express";
+
 import Work, { WorkType } from "models/Work";
+import { APIResponse, BaseParams, Empty, JwtRequest } from ".";
 
-import { TypedRequest, TypedRequestBody, TypedRequestQuery } from ".";
-
-interface CreateWorkRequestBody {
+interface WorkDetail {
   type: WorkType;
   start_date?: Date;
   end_date?: Date;
@@ -13,7 +11,7 @@ interface CreateWorkRequestBody {
 }
 
 export const createWork = (
-  req: TypedRequestBody<CreateWorkRequestBody>,
+  req: JwtRequest<Empty, APIResponse<Work>, WorkDetail, Empty>,
   res: Response
 ) => {
   const { username } = req.jwt!;
@@ -33,12 +31,8 @@ export const createWork = (
     memo: memo ?? undefined,
   });
 
-  // TODO: Work Type은 하루에 하나만 존재해야한다.
-  // TODO: Breakfast, Lunch, Dinner Type은 하루에 하나만 존재해야 한다.
-  // TODO: Vacation Type은 하루에 하나만 존재해야 한다.
-
   newWork.save().then(() => {
-    res.status(200).json({ message: "success create work" });
+    res.status(200).json({ data: newWork, message: "success create work" });
   });
 };
 
@@ -50,22 +44,12 @@ export const getWork = (req: JwtRequest, res: Response) => {
   });
 };
 
-interface PutWorkRequestQuery extends Query {
-  id: string;
-}
-
-interface UpdateWorkRequestBody {
-  start_date?: Date;
-  end_date?: Date;
-  memo?: string;
-}
-
 export const updateWork = async (
-  req: TypedRequest<PutWorkRequestQuery, UpdateWorkRequestBody>,
+  req: JwtRequest<BaseParams, Empty, Partial<WorkDetail>>,
   res: Response
 ) => {
   const { username } = req.jwt!;
-  const { id } = req.query;
+  const { id } = req.params;
   const { start_date, end_date, memo } = req.body;
 
   const work = await Work.findOne({ where: { id } });

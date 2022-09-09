@@ -1,20 +1,24 @@
-import { Response } from "express";
-import { Send, Query } from "express-serve-static-core";
-import { JwtRequest } from "middlewares/authJwt";
+import { Request } from "express";
+import { ParamsDictionary } from "express-serve-static-core";
+import { CustomJwtPayload } from "lib/jwt";
 
-export interface TypedRequestBody<T> extends JwtRequest {
-  body: T;
+export interface JwtRequest<
+  P = ParamsDictionary,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery = qs.ParsedQs,
+  Locals extends Record<string, any> = Record<string, any>
+> extends Request<P, ResBody, ReqBody, ReqQuery, Locals> {
+  jwt?: CustomJwtPayload;
 }
 
-export interface TypedRequestQuery<T extends Query> extends JwtRequest {
-  query: T;
+export interface BaseParams<IDType = number> {
+  id: IDType;
 }
 
-export interface TypedRequest<T extends Query, U> extends JwtRequest {
-  body: U;
-  query: T;
+export interface APIResponse<Data> {
+  data: Data;
+  message: string;
 }
 
-export interface TypedResponse<ResBody> extends Response {
-  json: Send<ResBody, this>;
-}
+export interface Empty {}

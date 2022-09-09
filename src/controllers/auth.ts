@@ -1,20 +1,19 @@
 import { Request, Response, NextFunction } from "express";
 import { promisify } from "util";
 
-import { TypedRequestBody } from ".";
 import { redisClient } from "config/redis";
-import { CustomJwtPayload, refresh, sign } from "lib/jwt";
+import { refresh, sign } from "lib/jwt";
 import { generatePassword, validatePassword } from "lib/password";
-import { JwtRequest } from "middlewares/authJwt";
 import User from "models/User";
+import { APIResponse, Empty, JwtRequest } from ".";
 
-interface LoginRequestBody {
+interface LoginDetail {
   username: string;
   password: string;
 }
 
 export const postLogin = (
-  req: TypedRequestBody<LoginRequestBody>,
+  req: Request<Empty, Empty, LoginDetail>,
   res: Response,
   next: NextFunction
 ) => {
@@ -67,14 +66,12 @@ export const postLogin = (
     });
 };
 
-interface RegisterRequestBody {
-  username: string;
-  password: string;
+interface RegisterDetail extends LoginDetail {
   display_name?: string;
 }
 
 export const postRegister = async (
-  req: TypedRequestBody<RegisterRequestBody>,
+  req: Request<RegisterDetail>,
   res: Response
 ) => {
   const { username, password, display_name } = req.body;
