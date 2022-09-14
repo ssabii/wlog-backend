@@ -13,10 +13,6 @@ import router from "./routes";
 
 dotenv.config();
 
-connectDB();
-
-connectRedis();
-
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -30,5 +26,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use("/api/v1", router);
 
 app.listen(port, () => {
+  connectDB();
+  connectRedis();
   console.info(`Server listening on port ${port}`);
 });
