@@ -28,7 +28,7 @@ export enum WorkType {
   Rest = "rest",
 }
 
-interface WorkAttributes {
+export interface WorkAttributes {
   id: number;
   username: string;
   type: WorkType;
@@ -37,7 +37,7 @@ interface WorkAttributes {
   memo: string;
 }
 
-interface WorkCreationAttributes
+export interface WorkCreationAttributes
   extends Optional<WorkAttributes, "id" | "startDate" | "endDate" | "memo"> {}
 
 @Table({

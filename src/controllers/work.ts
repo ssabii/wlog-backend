@@ -1,80 +1,55 @@
 import { Response } from "express";
 
 import Work, { WorkType } from "models/Work";
+import workService from "services/work";
 import { APIResponse, BaseParams, Empty, JwtRequest } from ".";
 
-interface WorkDetail {
-  type: WorkType;
-  start_date?: Date;
-  end_date?: Date;
-  memo?: string;
-}
-
-export const createWork = (
-  req: JwtRequest<Empty, APIResponse<Work>, WorkDetail, Empty>,
+export const createWork = async (
+  req: JwtRequest<Empty, APIResponse<Work>, Work, Empty>,
   res: Response
 ) => {
-  const { username } = req.jwt!;
-  const { type, start_date, end_date, memo } = req.body;
+  try {
+    const { username } = req.jwt!;
+    const work = new Work({
+      ...req.body,
+      username,
+    });
+    const newWork = await workService.createWork(work);
 
-  // TODO: 시간 유효성 검사
-
-  if (!type || !(start_date || end_date)) {
     return res
-      .status(400)
-      .json({ message: "type or start_date or end_date is required" });
+      .status(201)
+      .json({ data: newWork, message: "success create work" });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
   }
-
-  const newWork = Work.build({
-    username,
-    type,
-    startDate: start_date ?? undefined,
-    endDate: end_date ?? undefined,
-    memo: memo ?? undefined,
-  });
-
-  newWork.save().then(() => {
-    res.status(200).json({ data: newWork, message: "success create work" });
-  });
 };
 
-export const getWork = (req: JwtRequest, res: Response) => {
-  const { username } = req.jwt!;
+export const getWork = async (req: JwtRequest, res: Response) => {
+  try {
+    const { username } = req.jwt!;
+    const works = await workService.getWork(username);
 
-  Work.findAll({ where: { username } }).then((works) => {
-    res.status(200).json({ message: "success get work", data: { works } });
-  });
+    return res.status(200).json({ data: works, message: "success get work" });
+  } catch (e: any) {
+    return res.status(400).json({ error: e.message });
+  }
 };
 
 export const updateWork = async (
-  req: JwtRequest<BaseParams, Empty, Partial<WorkDetail>>,
+  req: JwtRequest<BaseParams, Empty, Work>,
   res: Response
 ) => {
-  const { username } = req.jwt!;
-  const { id } = req.params;
-  const { start_date, end_date, memo } = req.body;
+  try {
+    const { username } = req.jwt!;
+    const { id } = req.params;
+    const work = new Work({ ...req.body, id, username });
+    const updatedWork = workService.updateWork(work);
 
-  const work = await Work.findOne({ where: { id } });
-
-  // TODO: 시간 유효성 검사
-
-  if (work) {
-    if (work.username !== username) {
-      return res.status(401).json({ message: "not authorized" });
-    }
-
-    await work
-      .update({
-        startDate: start_date ?? work.startDate,
-        endDate: end_date ?? work.endDate,
-        memo: memo ?? work.memo,
-      })
-      .then(() => res.status(200).json({ message: "success update work" }))
-      .catch(() => {
-        res.status(500).json({ message: "fail update work" });
-      });
-  } else {
-    return res.status(404).json({ message: "not found work" });
+    return res
+      .status(200)
+      .json({ data: updatedWork, message: "success update work" });
+  } catch (e: any) {
+    return res.status(400).json({ error: e.message });
   }
 };
 
@@ -82,23 +57,13 @@ export const deleteWork = async (
   req: JwtRequest<BaseParams>,
   res: Response
 ) => {
-  const { username } = req.jwt!;
-  const { id } = req.params;
+  try {
+    const { username } = req.jwt!;
+    const { id } = req.params;
+    await workService.deleteWork({ id, username });
 
-  const work = await Work.findOne({ where: { id } });
-
-  if (work) {
-    if (work.username !== username) {
-      return res.status(401).json({ message: "not authorized" });
-    }
-
-    await work
-      .destroy()
-      .then(() => res.status(200).json({ message: "success delete work" }))
-      .catch(() => {
-        res.status(500).json({ message: "fail delete work" });
-      });
-  } else {
-    return res.status(404).json({ message: "not found work" });
+    return res.status(200).json({ message: "success delete work" });
+  } catch (e: any) {
+    return res.status(400).json({ error: e.message });
   }
 };
