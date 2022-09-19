@@ -2,11 +2,18 @@ import express from "express";
 
 import authJwt from "middlewares/authJwt";
 import { createWork, deleteWork, getWork, updateWork } from "controllers/work";
+import {
+  validateCreateWork,
+  validateDeleteWork,
+  validateUpdateWork,
+} from "middlewares/validateWork";
 
 const router = express.Router();
 
 router.use(authJwt);
-router.route("/work").post(createWork).get(getWork);
-router.route("/work/:id").put(updateWork).delete(deleteWork);
+router.route("/work").post(validateCreateWork, createWork);
+router.route("/work").get(getWork);
+router.route("/work/:id").put(validateUpdateWork, updateWork);
+router.route("/work/:id").delete(validateDeleteWork, deleteWork);
 
 export default router;

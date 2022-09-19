@@ -1,11 +1,11 @@
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 
 import Work, { WorkType } from "models/Work";
 import workService from "services/work";
 import { APIResponse, BaseParams, Empty, JwtRequest } from ".";
 
 export const createWork = async (
-  req: JwtRequest<Empty, APIResponse<Work>, Work, Empty>,
+  req: JwtRequest<Empty, APIResponse<Work>, Work>,
   res: Response
 ) => {
   try {
@@ -43,7 +43,7 @@ export const updateWork = async (
     const { username } = req.jwt!;
     const { id } = req.params;
     const work = new Work({ ...req.body, id, username });
-    const updatedWork = workService.updateWork(work);
+    const updatedWork = await workService.updateWork(work);
 
     return res
       .status(200)
@@ -55,7 +55,8 @@ export const updateWork = async (
 
 export const deleteWork = async (
   req: JwtRequest<BaseParams>,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const { username } = req.jwt!;
