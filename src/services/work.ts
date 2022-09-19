@@ -22,16 +22,13 @@ class WorkService {
   public async createWork(work: Work): Promise<Work> {
     const { username, type, startDate, endDate, memo } = work;
 
-    return await Work.create(
-      {
-        username,
-        type,
-        startDate: startDate ?? undefined,
-        endDate: endDate ?? undefined,
-        memo: memo ?? undefined,
-      },
-      { fields: this.selectors }
-    ).catch(() => {
+    return await Work.create({
+      username,
+      type,
+      startDate: startDate ?? undefined,
+      endDate: endDate ?? undefined,
+      memo: memo ?? undefined,
+    }).catch(() => {
       throw new Error("create failed");
     });
   }
