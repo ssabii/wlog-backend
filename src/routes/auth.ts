@@ -6,7 +6,7 @@ import {
   getProtected,
   getRegister,
   postLogin,
-  postRegister,
+  postRegister
 } from "../controllers/auth";
 import authJwt from "../middlewares/authJwt";
 

@@ -1,7 +1,7 @@
 import express from "express";
 
-import authJwt from "middlewares/authJwt";
 import { createWork, deleteWork, getWork, updateWork } from "controllers/work";
+import authJwt from "middlewares/authJwt";
 import {
   validateCreateWork,
   validateDeleteWork,

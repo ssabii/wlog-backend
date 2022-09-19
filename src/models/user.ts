@@ -8,7 +8,7 @@ import {
   Model,
   PrimaryKey,
   Table,
-  Unique,
+  Unique
 } from "sequelize-typescript";
 import UserSetting from "./UserSetting";
 import Work from "./Work";

@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 
-import Work, { WorkType } from "models/Work";
+import Work from "models/Work";
 import workService from "services/work";
 import { APIResponse, BaseParams, Empty, JwtRequest } from ".";
 

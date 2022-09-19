@@ -1,11 +1,11 @@
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { promisify } from "util";
 
 import { redisClient } from "config/redis";
 import { refresh, sign } from "lib/jwt";
 import { generatePassword, validatePassword } from "lib/password";
 import User from "models/User";
-import { APIResponse, Empty, JwtRequest } from ".";
+import { Empty, JwtRequest } from ".";
 
 interface LoginDetail {
   username: string;

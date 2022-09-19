@@ -1,11 +1,9 @@
 import {
-  AllowNull,
-  BelongsTo,
-  Column,
+  AllowNull, Column,
   DataType,
   ForeignKey,
   Model,
-  Table,
+  Table
 } from "sequelize-typescript";
 import User from "./User";
 
