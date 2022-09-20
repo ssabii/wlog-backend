@@ -1,4 +1,6 @@
-import Work, { WorkAttributes, WorkType } from "models/Work";
+import CustomError from "lib/errors/CustomError";
+import StatusCode from "lib/errors/enums/StatusCode";
+import Work, { WorkAttributes } from "models/Work";
 
 class WorkService {
   private selectors: (keyof WorkAttributes)[] = [
@@ -29,7 +31,10 @@ class WorkService {
       endDate: endDate ?? undefined,
       memo: memo ?? undefined,
     }).catch(() => {
-      throw new Error("create failed");
+      throw new CustomError(
+        StatusCode.INTERNAL_SERVER_ERROR,
+        "create work failed"
+      );
     });
   }
 
@@ -39,7 +44,7 @@ class WorkService {
 
     if (workRecord) {
       if (workRecord.username !== username) {
-        throw new Error("not authorized");
+        throw new CustomError(StatusCode.UNAUTHORIZED, "not authorized");
       }
 
       return await work
@@ -52,10 +57,13 @@ class WorkService {
           { fields: this.selectors }
         )
         .catch(() => {
-          throw new Error("update failed");
+          throw new CustomError(
+            StatusCode.INTERNAL_SERVER_ERROR,
+            "update work failed"
+          );
         });
     } else {
-      throw new Error("not found");
+      throw new CustomError(StatusCode.NOT_FOUND, "work not found");
     }
   }
 
@@ -65,12 +73,12 @@ class WorkService {
 
     if (workRecord) {
       if (workRecord.username !== username) {
-        throw new Error("not authorized");
+        throw new CustomError(StatusCode.UNAUTHORIZED, "not authorized");
       }
 
       return await workRecord.destroy();
     } else {
-      throw new Error("not found");
+      throw new CustomError(StatusCode.NOT_FOUND, "work not found");
     }
   }
 }

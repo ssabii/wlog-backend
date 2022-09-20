@@ -6,7 +6,8 @@ import { APIResponse, BaseParams, Empty, JwtRequest } from ".";
 
 export const createWork = async (
   req: JwtRequest<Empty, APIResponse<Work>, Work>,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const { username } = req.jwt!;
@@ -19,25 +20,30 @@ export const createWork = async (
     return res
       .status(201)
       .json({ data: newWork, message: "success create work" });
-  } catch (err: any) {
-    return res.status(400).json({ error: err.message });
+  } catch (e: any) {
+    return next(e);
   }
 };
 
-export const getWork = async (req: JwtRequest, res: Response) => {
+export const getWork = async (
+  req: JwtRequest,
+  res: Response,
+  next: Function
+) => {
   try {
     const { username } = req.jwt!;
     const works = await workService.getWork(username);
 
     return res.status(200).json({ data: works, message: "success get work" });
   } catch (e: any) {
-    return res.status(400).json({ error: e.message });
+    return next(e);
   }
 };
 
 export const updateWork = async (
   req: JwtRequest<BaseParams, Empty, Work>,
-  res: Response
+  res: Response,
+  next: Function
 ) => {
   try {
     const { username } = req.jwt!;
@@ -49,7 +55,7 @@ export const updateWork = async (
       .status(200)
       .json({ data: updatedWork, message: "success update work" });
   } catch (e: any) {
-    return res.status(400).json({ error: e.message });
+    return next(e);
   }
 };
 
@@ -65,6 +71,6 @@ export const deleteWork = async (
 
     return res.status(200).json({ message: "success delete work" });
   } catch (e: any) {
-    return res.status(400).json({ error: e.message });
+    return next(e);
   }
 };
