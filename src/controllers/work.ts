@@ -1,4 +1,5 @@
 import { NextFunction, Response } from "express";
+import StatusCode from "lib/errors/enums/StatusCode";
 
 import Work from "models/Work";
 import workService from "services/work";
@@ -18,7 +19,7 @@ export const createWork = async (
     const newWork = await workService.createWork(work);
 
     return res
-      .status(201)
+      .status(StatusCode.CREATED)
       .json({ data: newWork, message: "success create work" });
   } catch (e: any) {
     return next(e);
@@ -34,7 +35,9 @@ export const getWork = async (
     const { username } = req.jwt!;
     const works = await workService.getWork(username);
 
-    return res.status(200).json({ data: works, message: "success get work" });
+    return res
+      .status(StatusCode.OK)
+      .json({ data: works, message: "success get work" });
   } catch (e: any) {
     return next(e);
   }
@@ -52,7 +55,7 @@ export const updateWork = async (
     const updatedWork = await workService.updateWork(work);
 
     return res
-      .status(200)
+      .status(StatusCode.OK)
       .json({ data: updatedWork, message: "success update work" });
   } catch (e: any) {
     return next(e);
@@ -69,7 +72,7 @@ export const deleteWork = async (
     const { id } = req.params;
     await workService.deleteWork({ id, username });
 
-    return res.status(200).json({ message: "success delete work" });
+    return res.status(StatusCode.OK).json({ message: "success delete work" });
   } catch (e: any) {
     return next(e);
   }
