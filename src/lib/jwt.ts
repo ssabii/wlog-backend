@@ -33,6 +33,7 @@ export const sign = (user: User) => {
 export const verify = (token: string) => {
   return jwt.verify(token, publicKey, {
     algorithms: ["RS256"],
+    clockTimestamp: Date.now(),
   });
 };
 
@@ -53,7 +54,7 @@ export const verifyRefresh = async (token: string, id: string) => {
     const user = await getAsync(id);
 
     if (token === user) {
-      jwt.verify(token, publicKey);
+      jwt.verify(token, publicKey, { clockTimestamp: Date.now() });
     }
 
     return true;
