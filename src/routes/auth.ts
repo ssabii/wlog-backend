@@ -6,7 +6,8 @@ import {
   getProtected,
   getRegister,
   postLogin,
-  postRegister
+  postRegister,
+  refreshJwt,
 } from "../controllers/auth";
 import authJwt from "../middlewares/authJwt";
 
@@ -19,5 +20,6 @@ router.get("/login", getLogin);
 router.get("/register", getRegister);
 router.get("/logout", authJwt, getLogout);
 router.get("/protected", authJwt, getProtected);
+router.get("/refresh", refreshJwt);
 
 export default router;

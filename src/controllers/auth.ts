@@ -2,7 +2,14 @@ import { NextFunction, Request, Response } from "express";
 import { promisify } from "util";
 
 import { redisClient } from "config/redis";
-import { refresh, sign } from "lib/jwt";
+import { decode } from "jsonwebtoken";
+import {
+  CustomJwtPayload,
+  refresh,
+  sign,
+  verify,
+  verifyRefresh,
+} from "lib/jwt";
 import { generatePassword, validatePassword } from "lib/password";
 import User from "models/User";
 import { Empty, JwtRequest } from ".";
@@ -49,10 +56,8 @@ export const postLogin = (
         res.status(200).json({
           message: "success login",
           data: {
-            token: {
-              access_token: accessToken,
-              refresh_token: refreshToken,
-            },
+            accessToken,
+            refreshToken,
           },
         });
       } else {
@@ -145,4 +150,50 @@ export const getLogout = async (req: JwtRequest, res: Response) => {
 
 export const getProtected = (req: Request, res: Response) => {
   res.status(200).json({ message: "you are authorized" });
+};
+
+export const refreshJwt = async (req: Request, res: Response) => {
+  const { authorization, refresh } = req.headers;
+
+  if (authorization && refresh) {
+    const tokenParts = authorization.split(" ");
+    const refreshToken = refresh as string;
+
+    const verification = <CustomJwtPayload>verify(tokenParts[1]);
+
+    if (verification.name === "TokenExpiredError") {
+      const decoded = <CustomJwtPayload>decode(tokenParts[1]);
+      const user = await User.findOne({ where: { id: decoded.id } });
+
+      if (user) {
+        const refreshVerification = await verifyRefresh(
+          refreshToken,
+          decoded.id
+        );
+
+        const newAccessToken = sign(user);
+        if (refreshVerification) {
+          res.status(200).json({
+            message: "success refresh",
+            data: {
+              accessToken: newAccessToken,
+              refreshToken: refresh,
+            },
+          });
+        } else {
+          res.status(401).json({ message: "invalid refresh token" });
+        }
+      } else {
+        return res.status(404).json({ message: "user not found" });
+      }
+    } else if (verification.name === "JsonWebTokenError") {
+      res.status(401).json({ message: "invalid token" });
+    } else {
+      res.status(400).json({ message: "access token is not expired" });
+    }
+  } else {
+    res
+      .status(400)
+      .json({ message: "access token and refresh token are need for refresh" });
+  }
 };
