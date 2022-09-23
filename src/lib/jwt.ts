@@ -10,7 +10,7 @@ const publicKey = process.env.JWT_PUBLIC_KEY as string;
 export interface CustomJwtPayload extends JwtPayload {
   id: string;
   username: string;
-  display_name: string;
+  displayName: string;
 }
 
 export const sign = (user: User) => {
@@ -18,7 +18,7 @@ export const sign = (user: User) => {
   const payload: CustomJwtPayload = {
     id: user.id,
     username: user.username,
-    display_name: user.displayName,
+    displayName: user.displayName,
     iat: Date.now(),
   };
 
@@ -31,10 +31,14 @@ export const sign = (user: User) => {
 };
 
 export const verify = (token: string) => {
-  return jwt.verify(token, publicKey, {
-    algorithms: ["RS256"],
-    clockTimestamp: Date.now(),
-  });
+  try {
+    return jwt.verify(token, publicKey, {
+      algorithms: ["RS256"],
+      clockTimestamp: Date.now(),
+    });
+  } catch (err) {
+    return err;
+  }
 };
 
 export const refresh = () => {
@@ -51,14 +55,19 @@ export const verifyRefresh = async (token: string, id: string) => {
   const getAsync = promisify(redisClient.get).bind(redisClient);
 
   try {
-    const user = await getAsync(id);
+    const data = await getAsync(id);
 
-    if (token === user) {
-      jwt.verify(token, publicKey, { clockTimestamp: Date.now() });
+    if (token === data) {
+      try {
+        jwt.verify(token, publicKey, { clockTimestamp: Date.now() });
+        return true;
+      } catch (err) {
+        return false;
+      }
+    } else {
+      return false;
     }
-
-    return true;
-  } catch (e) {
+  } catch (err) {
     return false;
   }
 };
