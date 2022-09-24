@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { TokenExpiredError } from "jsonwebtoken";
+import CustomError from "lib/errors/CustomError";
+import StatusCode from "lib/errors/enums/StatusCode";
 import { CustomJwtPayload, verify } from "lib/jwt";
 
 export interface JwtRequest extends Request {
@@ -10,8 +12,7 @@ const authJwt = (req: JwtRequest, res: Response, next: NextFunction) => {
   const { authorization } = req.headers;
 
   if (!authorization) {
-    res.status(401).json({ message: "You are not authorized" });
-    return;
+    return next(new CustomError(StatusCode.UNAUTHORIZED, "not authorized"));
   }
 
   const tokenParts = authorization.split(" ");
@@ -25,15 +26,15 @@ const authJwt = (req: JwtRequest, res: Response, next: NextFunction) => {
 
       req.jwt = verification;
       next();
-    } catch (err) {
-      if (err instanceof TokenExpiredError) {
-        res.status(401).json({ message: "Token expired" });
+    } catch (e) {
+      if (e instanceof TokenExpiredError) {
+        next(new CustomError(StatusCode.UNAUTHORIZED, "token expired"));
       } else {
-        res.status(401).json({ message: "Invalid token" });
+        next(new CustomError(StatusCode.UNAUTHORIZED, "invalide token"));
       }
     }
   } else {
-    res.status(401).json({ message: "You are not authorized" });
+    next(new CustomError(StatusCode.UNAUTHORIZED, "not authorized"));
   }
 };
 
