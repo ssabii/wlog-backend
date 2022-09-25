@@ -2,6 +2,7 @@ import { JwtRequest } from "controllers/index";
 import { NextFunction, Request, Response } from "express";
 import { ParamsDictionary } from "express-serve-static-core";
 import { validationResult } from "express-validator";
+import StatusCode from "lib/errors/enums/StatusCode";
 
 const validate = <
   P = ParamsDictionary,
@@ -15,12 +16,13 @@ const validate = <
   next: NextFunction
 ) => {
   const errors = validationResult(req as unknown as Request);
+  const message = errors.array()[0].msg;
 
   if (errors.isEmpty()) {
     return next();
   }
 
-  return res.status(400).json({ message: errors.array()[0] });
+  return res.status(StatusCode.BAD_REQUEST).json({ message });
 };
 
 export default validate;
