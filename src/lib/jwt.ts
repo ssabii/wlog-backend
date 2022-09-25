@@ -1,6 +1,7 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { promisify } from "util";
 import { redisClient } from "../config/redis";
+import ms from "ms";
 
 import User from "models/User";
 
@@ -14,14 +15,13 @@ export interface CustomJwtPayload extends JwtPayload {
 }
 
 export const sign = (user: User) => {
-  const expiresIn = "1h";
+  const expiresIn = ms("1h");
   const payload: CustomJwtPayload = {
     id: user.id,
     username: user.username,
     displayName: user.displayName,
     iat: Date.now(),
   };
-
   const signedToken = jwt.sign(payload, privateKey, {
     algorithm: "RS256",
     expiresIn,
@@ -37,12 +37,12 @@ export const verify = (token: string) => {
       clockTimestamp: Date.now(),
     });
   } catch (err) {
-    return err;
+    throw err;
   }
 };
 
 export const refresh = () => {
-  const expiresIn = "7d";
+  const expiresIn = ms("7d");
   const signedToken = jwt.sign({}, privateKey, {
     algorithm: "RS256",
     expiresIn,
@@ -57,14 +57,14 @@ export const verifyRefresh = async (token: string, id: string) => {
   try {
     const data = await getAsync(id);
 
-    if (token === data) {
-      try {
-        jwt.verify(token, publicKey, { clockTimestamp: Date.now() });
-        return true;
-      } catch (err) {
-        return false;
-      }
-    } else {
+    if (token !== data) {
+      return false;
+    }
+
+    try {
+      jwt.verify(token, publicKey, { clockTimestamp: Date.now() });
+      return true;
+    } catch (err) {
       return false;
     }
   } catch (err) {
