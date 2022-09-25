@@ -1,9 +1,10 @@
 import {
-  AllowNull, Column,
+  AllowNull,
+  Column,
   DataType,
   ForeignKey,
   Model,
-  Table
+  Table,
 } from "sequelize-typescript";
 import User from "./User";
 
@@ -14,7 +15,7 @@ interface UserSettingAttributes {
   lunchEndDate: Date;
   workingDay: number;
   autoRecord: boolean;
-  isTwelveHour: number;
+  isTwelveHour: boolean;
 }
 
 interface UserSettingCreationAttributes extends UserSettingAttributes {}
