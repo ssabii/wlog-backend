@@ -45,15 +45,6 @@ export const register = async (
   next: NextFunction
 ) => {
   const { username, password, displayName } = req.body;
-  if (!username) {
-    res.status(400).json({ message: "username is required" });
-    return;
-  }
-
-  if (!password) {
-    res.status(400).json({ message: "password is required" });
-    return;
-  }
 
   try {
     const user = await authService.register(username, password, displayName);
@@ -92,6 +83,7 @@ export const logout = async (
 ) => {
   try {
     const { id } = req.jwt!;
+
     await authService.logout(id);
     res.status(StatusCode.OK).json({ message: "success logout" });
   } catch (e) {
@@ -100,7 +92,7 @@ export const logout = async (
 };
 
 export const renderProtected = (req: Request, res: Response) => {
-  res.status(200).json({ message: "you are authorized" });
+  res.status(StatusCode.OK).json({ message: "you are authorized" });
 };
 
 export const refreshJwt = async (
