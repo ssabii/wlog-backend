@@ -1,25 +1,26 @@
 import express from "express";
+import { validateLogin, validateRegister } from "middlewares/AuthValidation";
 
 import {
-  getLogin,
-  getLogout,
-  getProtected,
-  getRegister,
-  postLogin,
-  postRegister,
+  renderLogin,
+  logout,
+  renderProtected,
+  renderRegister,
+  login,
+  register,
   refreshJwt,
 } from "../controllers/auth";
 import authJwt from "../middlewares/authJwt";
 
 const router = express.Router();
 
-router.post("/login", postLogin);
-router.post("/register", postRegister);
+router.post("/login", validateLogin, login);
+router.post("/register", validateRegister, register);
 
-router.get("/login", getLogin);
-router.get("/register", getRegister);
-router.get("/logout", authJwt, getLogout);
-router.get("/protected", authJwt, getProtected);
+router.get("/login", renderLogin);
+router.get("/register", renderRegister);
+router.get("/logout", authJwt, logout);
+router.get("/protected", authJwt, renderProtected);
 router.get("/refresh", refreshJwt);
 
 export default router;

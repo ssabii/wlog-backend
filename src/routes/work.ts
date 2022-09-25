@@ -6,7 +6,7 @@ import {
   validateCreateWork,
   validateDeleteWork,
   validateUpdateWork,
-} from "middlewares/validateWork";
+} from "middlewares/WorkValidation";
 
 const router = express.Router();
 
