@@ -1,14 +1,14 @@
 import express from "express";
-import { validateLogin, validateRegister } from "middlewares/AuthValidation";
 
+import { validateLogin, validateRegister } from "middlewares/AuthValidation";
 import {
-  renderLogin,
+  login,
   logout,
+  refreshJwt,
+  register,
+  renderLogin,
   renderProtected,
   renderRegister,
-  login,
-  register,
-  refreshJwt,
 } from "../controllers/auth";
 import authJwt from "../middlewares/authJwt";
 
