@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
-import StatusCode from "lib/errors/enums/StatusCode";
 
+import StatusCode from "lib/errors/enums/StatusCode";
 import Work from "models/Work";
 import workService from "services/work";
 import { APIResponse, BaseParams, Empty, JwtRequest } from ".";
