@@ -16,12 +16,12 @@ const validate = <
   next: NextFunction
 ) => {
   const errors = validationResult(req as unknown as Request);
-  const message = errors.array()[0].msg;
 
   if (errors.isEmpty()) {
     return next();
   }
 
+  const message = errors.array()[0].msg;
   return res.status(StatusCode.BAD_REQUEST).json({ message });
 };
 

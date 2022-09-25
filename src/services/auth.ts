@@ -41,7 +41,7 @@ class AuthService {
         }
       })
       .catch(() => {
-        throw new CustomError(StatusCode.INTERNAL_SERVER_ERROR, "login failed");
+        throw new CustomError(StatusCode.NOT_FOUND, "login failed");
       });
   }
 
