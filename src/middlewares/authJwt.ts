@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { decode, TokenExpiredError } from "jsonwebtoken";
+import { TokenExpiredError } from "jsonwebtoken";
 import CustomError from "lib/errors/CustomError";
 import StatusCode from "lib/errors/enums/StatusCode";
 import { CustomJwtPayload, verify } from "lib/jwt";
