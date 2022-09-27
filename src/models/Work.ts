@@ -6,7 +6,7 @@ import {
   ForeignKey,
   Model,
   PrimaryKey,
-  Table
+  Table,
 } from "sequelize-typescript";
 import { Optional } from "sequelize/types";
 import User from "./User";
