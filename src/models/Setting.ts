@@ -1,36 +1,61 @@
 import {
   AllowNull,
+  AutoIncrement,
   Column,
   DataType,
   ForeignKey,
   Model,
+  PrimaryKey,
   Table,
+  Unique,
 } from "sequelize-typescript";
+import { Optional } from "sequelize/types";
 import User from "./User";
 
-interface UserSettingAttributes {
-  workStartDate: Date;
-  workEndDate: Date;
-  lunchStartDate: Date;
-  lunchEndDate: Date;
+interface SettingAttributes {
+  id: number;
+  username: string;
+  workStartTime: Date;
+  workEndTime: Date;
+  lunchStartTime: Date;
+  lunchEndTime: Date;
   workingDay: number;
   autoRecord: boolean;
   isTwelveHour: boolean;
 }
 
-interface UserSettingCreationAttributes extends UserSettingAttributes {}
+interface SettingCreationAttributes
+  extends Optional<
+    SettingAttributes,
+    | "id"
+    | "workStartTime"
+    | "workEndTime"
+    | "lunchStartTime"
+    | "lunchEndTime"
+    | "workingDay"
+    | "autoRecord"
+    | "isTwelveHour"
+  > {}
 
 @Table({
-  tableName: "user_settings",
-  modelName: "user_setting",
+  tableName: "settings",
+  modelName: "setting",
   charset: "utf8",
   timestamps: true,
   underscored: true,
 })
-export default class UserSetting extends Model<
-  UserSettingAttributes,
-  UserSettingCreationAttributes
+export default class Setting extends Model<
+  SettingAttributes,
+  SettingCreationAttributes
 > {
+  @PrimaryKey
+  @AutoIncrement
+  @Column({
+    type: DataType.INTEGER.UNSIGNED,
+  })
+  id!: number;
+
+  @Unique
   @ForeignKey(() => User)
   @Column({
     type: DataType.STRING,
@@ -41,25 +66,25 @@ export default class UserSetting extends Model<
   @Column({
     type: DataType.DATE,
   })
-  workStartDate!: Date;
+  workStartTime!: Date;
 
   @AllowNull
   @Column({
     type: DataType.DATE,
   })
-  workEndDate!: Date;
+  workEndTime!: Date;
 
   @AllowNull
   @Column({
     type: DataType.DATE,
   })
-  lunchStartDate!: Date;
+  lunchStartTime!: Date;
 
   @AllowNull
   @Column({
     type: DataType.DATE,
   })
-  lunchEndDate!: Date;
+  lunchEndTime!: Date;
 
   @AllowNull
   @Column({

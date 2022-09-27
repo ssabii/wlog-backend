@@ -5,12 +5,13 @@ import {
   DataType,
   Default,
   HasMany,
+  HasOne,
   Model,
   PrimaryKey,
   Table,
   Unique,
 } from "sequelize-typescript";
-import UserSetting from "./UserSetting";
+import Setting from "./Setting";
 import Work from "./Work";
 
 interface UserAttributes {
@@ -78,6 +79,6 @@ export default class User extends Model<
   @HasMany(() => Work, { foreignKey: "username", sourceKey: "username" })
   works?: Work[];
 
-  @HasMany(() => UserSetting, { foreignKey: "username", sourceKey: "username" })
-  userSettings?: UserSetting[];
+  @HasOne(() => Setting, { foreignKey: "username", sourceKey: "username" })
+  setting?: Setting;
 }
