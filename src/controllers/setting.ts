@@ -12,11 +12,7 @@ export const createSetting = async (
 ) => {
   try {
     const { username } = req.jwt!;
-    const setting = new Setting({
-      ...req.body,
-      username,
-    });
-    const newSetting = await settingService.createSetting(setting);
+    const newSetting = await settingService.createSetting(username);
 
     return res.status(StatusCode.CREATED).json({
       data: newSetting,

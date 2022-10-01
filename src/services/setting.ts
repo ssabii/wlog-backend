@@ -22,17 +22,7 @@ class SettingService {
       });
   }
 
-  public async createSetting(setting: Setting) {
-    const {
-      username,
-      workStartTime,
-      workEndTime,
-      lunchStartTime,
-      lunchEndTime,
-      workingDay,
-      autoRecord,
-      isTwelveHour,
-    } = setting;
+  public async createSetting(username: string) {
     const settingRecord = await Setting.findOne({ where: { username } });
 
     if (settingRecord) {
@@ -46,13 +36,13 @@ class SettingService {
 
     return await Setting.create({
       username,
-      workStartTime: workStartTime ?? new Date(year, month, date, 9),
-      workEndTime: workEndTime ?? new Date(year, month, date, 18),
-      lunchStartTime: lunchStartTime ?? new Date(year, month, date, 12),
-      lunchEndTime: lunchEndTime ?? new Date(year, month, date, 13),
-      workingDay: workingDay ?? 1 + 2 + 3 + 4 + 5, // 월, 화, 수, 목, 금
-      autoRecord: autoRecord ?? false,
-      isTwelveHour: isTwelveHour ?? true,
+      workStartTime: new Date(year, month, date, 9),
+      workEndTime: new Date(year, month, date, 18),
+      lunchStartTime: new Date(year, month, date, 12),
+      lunchEndTime: new Date(year, month, date, 13),
+      workingDay: 1 + 2 + 3 + 4 + 5, // 월, 화, 수, 목, 금
+      autoRecord: false,
+      isTwelveHour: true,
     }).catch(() => {
       throw new CustomError(
         StatusCode.INTERNAL_SERVER_ERROR,

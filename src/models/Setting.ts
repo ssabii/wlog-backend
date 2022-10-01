@@ -1,5 +1,6 @@
 import {
   AllowNull,
+  NotNull,
   AutoIncrement,
   Column,
   DataType,
@@ -24,18 +25,7 @@ interface SettingAttributes {
   isTwelveHour: boolean;
 }
 
-interface SettingCreationAttributes
-  extends Optional<
-    SettingAttributes,
-    | "id"
-    | "workStartTime"
-    | "workEndTime"
-    | "lunchStartTime"
-    | "lunchEndTime"
-    | "workingDay"
-    | "autoRecord"
-    | "isTwelveHour"
-  > {}
+interface SettingCreationAttributes extends Optional<SettingAttributes, "id"> {}
 
 @Table({
   tableName: "settings",
@@ -62,43 +52,43 @@ export default class Setting extends Model<
   })
   username!: string;
 
-  @AllowNull
+  @AllowNull(false)
   @Column({
     type: DataType.DATE,
   })
   workStartTime!: Date;
 
-  @AllowNull
+  @AllowNull(false)
   @Column({
     type: DataType.DATE,
   })
   workEndTime!: Date;
 
-  @AllowNull
+  @AllowNull(false)
   @Column({
     type: DataType.DATE,
   })
   lunchStartTime!: Date;
 
-  @AllowNull
+  @AllowNull(false)
   @Column({
     type: DataType.DATE,
   })
   lunchEndTime!: Date;
 
-  @AllowNull
+  @AllowNull(false)
   @Column({
     type: DataType.TINYINT.UNSIGNED,
   })
   workingDay!: number;
 
-  @AllowNull
+  @AllowNull(false)
   @Column({
     type: DataType.BOOLEAN,
   })
   autoRecord!: boolean;
 
-  @AllowNull
+  @AllowNull(false)
   @Column({
     type: DataType.BOOLEAN,
   })
