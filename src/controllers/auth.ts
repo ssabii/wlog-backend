@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import StatusCode from "lib/errors/enums/StatusCode";
 import User from "models/User";
 import authService from "services/auth";
+import settingService from "services/setting";
 import { APIResponse, Empty, JwtRequest } from ".";
 
 interface LoginDetails {
@@ -48,6 +49,8 @@ export const register = async (
 
   try {
     const user = await authService.register(username, password, displayName);
+    await settingService.createSetting(username);
+
     res
       .status(StatusCode.CREATED)
       .json({ message: "user created", data: user });
