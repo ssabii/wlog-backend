@@ -47,7 +47,7 @@ class WorkService {
         throw new CustomError(StatusCode.UNAUTHORIZED, "not authorized");
       }
 
-      return await work
+      return await workRecord
         .update(
           {
             startDate: startDate ?? workRecord.startDate,
