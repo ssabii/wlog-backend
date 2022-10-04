@@ -27,7 +27,7 @@ export const sign = (user: User) => {
     expiresIn,
   });
 
-  return "Bearer " + signedToken;
+  return signedToken;
 };
 
 export const verify = (token: string) => {
@@ -48,7 +48,7 @@ export const refresh = () => {
     expiresIn,
   });
 
-  return "Bearer " + signedToken;
+  return signedToken;
 };
 
 export const verifyRefresh = async (token: string, id: string) => {

@@ -26,9 +26,10 @@ export const login = async (
 
     res.status(StatusCode.OK).json({
       message: "success login",
-      data: {
+      token: {
         accessToken,
         refreshToken,
+        tokenType: "Bearer",
       },
     });
   } catch (e) {
