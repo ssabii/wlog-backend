@@ -9,7 +9,7 @@ const errorHandler = (
   next: NextFunction
 ) => {
   if (err instanceof CustomError) {
-    return res.status(err.code).json(err);
+    return res.status(err.code).json(err.message);
   }
   return res.status(StatusCode.INTERNAL_SERVER_ERROR).json(err.message);
 };
