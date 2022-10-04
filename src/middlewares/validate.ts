@@ -22,7 +22,7 @@ const validate = <
   }
 
   const message = errors.array()[0].msg;
-  return res.status(StatusCode.BAD_REQUEST).json({ message });
+  return res.status(StatusCode.BAD_REQUEST).json(message);
 };
 
 export default validate;

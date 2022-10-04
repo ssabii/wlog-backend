@@ -11,7 +11,7 @@ const errorHandler = (
   if (err instanceof CustomError) {
     return res.status(err.code).json(err);
   }
-  return res.status(StatusCode.INTERNAL_SERVER_ERROR).json(err);
+  return res.status(StatusCode.INTERNAL_SERVER_ERROR).json(err.message);
 };
 
 export default errorHandler;
