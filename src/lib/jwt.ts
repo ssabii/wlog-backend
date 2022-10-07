@@ -34,7 +34,7 @@ export const verify = (token: string) => {
   try {
     return jwt.verify(token, publicKey, {
       algorithms: ["RS256"],
-      clockTimestamp: Date.now(),
+      clockTimestamp: Date.now() / 1000,
     });
   } catch (err) {
     throw err;
@@ -62,7 +62,7 @@ export const verifyRefresh = async (token: string, id: string) => {
     }
 
     try {
-      jwt.verify(token, publicKey, { clockTimestamp: Date.now() });
+      jwt.verify(token, publicKey, { clockTimestamp: Date.now() / 1000 });
       return true;
     } catch (err) {
       return false;
