@@ -110,9 +110,10 @@ export const refreshJwt = async (
     );
     res.status(StatusCode.OK).json({
       message: "success refresh",
-      data: {
+      token: {
         accessToken,
         refreshToken,
+        tokenType: "Bearer",
       },
     });
   } catch (e) {

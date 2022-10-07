@@ -16,11 +16,11 @@ const router = express.Router();
 
 router.post("/login", validateLogin, login);
 router.post("/register", validateRegister, register);
+router.post("/refresh", refreshJwt);
 
 router.get("/login", renderLogin);
 router.get("/register", renderRegister);
 router.get("/logout", authJwt, logout);
 router.get("/protected", authJwt, renderProtected);
-router.get("/refresh", refreshJwt);
 
 export default router;
