@@ -1,6 +1,9 @@
 import { redisClient } from "config/redis";
 import { IncomingHttpHeaders } from "http";
-import { decode, JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+import {
+  decode,
+  JsonWebTokenError, TokenExpiredError
+} from "jsonwebtoken";
 import CustomError from "lib/errors/CustomError";
 import StatusCode from "lib/errors/enums/StatusCode";
 import {
@@ -8,7 +11,7 @@ import {
   refresh,
   sign,
   verify,
-  verifyRefresh,
+  verifyRefresh
 } from "lib/jwt";
 import { generatePassword, validatePassword } from "lib/password";
 import User from "models/User";
@@ -135,7 +138,7 @@ class AuthService {
 
             return {
               accessToken: newAccessToken,
-              refreshToken: refresh,
+              refreshToken: refreshToken,
             };
           } else {
             throw new CustomError(
