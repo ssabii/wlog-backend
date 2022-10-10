@@ -1,4 +1,4 @@
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt, { decode, JwtPayload } from "jsonwebtoken";
 import { promisify } from "util";
 import { redisClient } from "../config/redis";
 import ms from "ms";
@@ -31,10 +31,12 @@ export const sign = (user: User) => {
 };
 
 export const verify = (token: string) => {
+  const decoded = <JwtPayload>decode(token);
+
   try {
     return jwt.verify(token, publicKey, {
       algorithms: ["RS256"],
-      clockTimestamp: Date.now() / 1000,
+      clockTimestamp: Date.now(),
     });
   } catch (err) {
     throw err;
@@ -43,7 +45,7 @@ export const verify = (token: string) => {
 
 export const refresh = () => {
   const expiresIn = ms("7d");
-  const signedToken = jwt.sign({}, privateKey, {
+  const signedToken = jwt.sign({ iat: Date.now() }, privateKey, {
     algorithm: "RS256",
     expiresIn,
   });
@@ -53,6 +55,7 @@ export const refresh = () => {
 
 export const verifyRefresh = async (token: string, id: string) => {
   const getAsync = promisify(redisClient.get).bind(redisClient);
+  const decode = <JwtPayload>jwt.decode(token);
 
   try {
     const data = await getAsync(id);
@@ -62,7 +65,7 @@ export const verifyRefresh = async (token: string, id: string) => {
     }
 
     try {
-      jwt.verify(token, publicKey, { clockTimestamp: Date.now() / 1000 });
+      jwt.verify(token, publicKey, { clockTimestamp: Date.now() });
       return true;
     } catch (err) {
       return false;
