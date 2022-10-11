@@ -1,9 +1,6 @@
 import { redisClient } from "config/redis";
 import { IncomingHttpHeaders } from "http";
-import {
-  decode,
-  JsonWebTokenError, TokenExpiredError
-} from "jsonwebtoken";
+import { decode, JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import CustomError from "lib/errors/CustomError";
 import StatusCode from "lib/errors/enums/StatusCode";
 import {
@@ -11,7 +8,7 @@ import {
   refresh,
   sign,
   verify,
-  verifyRefresh
+  verifyRefresh,
 } from "lib/jwt";
 import { generatePassword, validatePassword } from "lib/password";
 import User from "models/User";
@@ -37,14 +34,23 @@ class AuthService {
               refreshToken,
             };
           } else {
-            throw new CustomError(StatusCode.UNAUTHORIZED, "invalid password");
+            throw new CustomError(
+              StatusCode.UNAUTHORIZED,
+              "아이디 또는 비밀번호가 일치하지 않습니다."
+            );
           }
         } else {
-          throw new CustomError(StatusCode.NOT_FOUND, "could not found user");
+          throw new CustomError(
+            StatusCode.NOT_FOUND,
+            "존재하지 않는 사용자입니다."
+          );
         }
       })
       .catch(() => {
-        throw new CustomError(StatusCode.NOT_FOUND, "login failed");
+        throw new CustomError(
+          StatusCode.NOT_FOUND,
+          "존재하지 않는 사용자입니다."
+        );
       });
   }
 
@@ -58,7 +64,7 @@ class AuthService {
     });
 
     if (userRecord) {
-      throw new CustomError(StatusCode.CONFLICT, "username already exists");
+      throw new CustomError(StatusCode.CONFLICT, "동일한 아이디가 존재합니다.");
     }
 
     const { salt, hash } = generatePassword(password);
@@ -83,7 +89,7 @@ class AuthService {
       .catch(() => {
         throw new CustomError(
           StatusCode.INTERNAL_SERVER_ERROR,
-          "register failed"
+          "회원가입에 실패하였습니다."
         );
       });
   }
@@ -96,11 +102,11 @@ class AuthService {
       await redisClient.del(id).catch(() => {
         throw new CustomError(
           StatusCode.INTERNAL_SERVER_ERROR,
-          "logout failed"
+          "서버에서 오류가 발생하였습니다."
         );
       });
     } else {
-      throw new CustomError(StatusCode.NOT_FOUND, "could not found user");
+      throw new CustomError(StatusCode.NOT_FOUND, "사용자를 찾을 수 없습니다.");
     }
   }
 
